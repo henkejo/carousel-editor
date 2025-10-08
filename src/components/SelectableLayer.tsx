@@ -1,7 +1,8 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { useWorkspaceStore } from '@/store/workspaceStore'
-import { RotateCw } from 'lucide-react'
 import classNames from 'classnames'
+
+type ResizeHandle = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 
 interface SelectableLayerProps {
   id: string
@@ -65,12 +66,62 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
     document.addEventListener('mouseup', handleMouseUp)
   }
 
+  const handleResize = (handle: ResizeHandle) => (e: React.MouseEvent) => {
+    e.stopPropagation()
+
+    const startX = e.clientX / zoom
+    const startY = e.clientY / zoom
+    const startScale = { ...scale }
+
+    const isLeft = handle.includes('left')
+    const isTop = handle.includes('top')
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const currentX = e.clientX / zoom
+      const currentY = e.clientY / zoom
+
+      const deltaX = currentX - startX
+      const deltaY = currentY - startY
+
+      const scaleFactor = 0.005
+      let scaleChange = 0
+
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        scaleChange = deltaX * scaleFactor
+      } else {
+        scaleChange = deltaY * scaleFactor
+      }
+
+      if (isLeft || isTop) {
+        scaleChange = -scaleChange
+      }
+
+      const minScale = 0.1
+      const newScaleValue = Math.max(minScale, startScale.x + scaleChange)
+
+      updateLayer(id, {
+        scale: {
+          x: newScaleValue,
+          y: newScaleValue
+        }
+      })
+    }
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+  }
+
   return (
     <div
       ref={containerRef}
       className={classNames(
         'absolute cursor-move select-none',
-        isSelected && 'outline outline-2 outline-white-500 drop-shadow-lg'
+        isSelected && 'outline outline-2 outline-white drop-shadow-lg'
       )}
       style={{
         transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale.x}, ${scale.y})`,
@@ -87,6 +138,26 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
           clipPath: `inset(${crop.y}px ${crop.x}px ${crop.height}px ${crop.width}px)`
         }}
       />
+      {isSelected && (
+        <>
+          <div
+            className="absolute w-3 h-3 bg-white border-2 border-black rounded-sm cursor-nw-resize -left-1.5 -top-1.5"
+            onMouseDown={handleResize('top-left')}
+          />
+          <div
+            className="absolute w-3 h-3 bg-white border-2 border-black rounded-sm cursor-ne-resize -right-1.5 -top-1.5"
+            onMouseDown={handleResize('top-right')}
+          />
+          <div
+            className="absolute w-3 h-3 bg-white border-2 border-black rounded-sm cursor-sw-resize -left-1.5 -bottom-1.5"
+            onMouseDown={handleResize('bottom-left')}
+          />
+          <div
+            className="absolute w-3 h-3 bg-white border-2 border-black rounded-sm cursor-se-resize -right-1.5 -bottom-1.5"
+            onMouseDown={handleResize('bottom-right')}
+          />
+        </>
+      )}
     </div>
   )
 }
