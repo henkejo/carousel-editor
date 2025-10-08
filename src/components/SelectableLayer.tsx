@@ -28,13 +28,6 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
   const zoom = useWorkspaceStore(state => state.zoom)
   const isSelected = selectedLayerId === id
 
-  const handleRotate = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    updateLayer(id, {
-      rotation: rotation + 90
-    })
-  }
-
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation()
     
@@ -77,7 +70,7 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
       ref={containerRef}
       className={classNames(
         'absolute cursor-move select-none',
-        isSelected && 'outline outline-2 outline-blue-500'
+        isSelected && 'outline outline-2 outline-white-500 drop-shadow-lg'
       )}
       style={{
         transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale.x}, ${scale.y})`,
@@ -94,16 +87,6 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
           clipPath: `inset(${crop.y}px ${crop.x}px ${crop.height}px ${crop.width}px)`
         }}
       />
-      {isSelected && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <button
-            className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-100"
-            onClick={handleRotate}
-          >
-            <RotateCw className="w-4 h-4" />
-          </button>
-        </div>
-      )}
     </div>
   )
 }
