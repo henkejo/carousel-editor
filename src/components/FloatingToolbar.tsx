@@ -9,8 +9,13 @@ const FloatingToolbar: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-card backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg border">
+    <div className={classNames(
+      "fixed bottom-6 left-1/2 transform -translate-x-1/2",
+      "z-50 animate-[slideUp_0.3s_ease-out]"
+    )}>
+      <div className={classNames(
+        "bg-card backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg border"
+      )}>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
