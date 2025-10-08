@@ -42,7 +42,9 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
       return
     }
 
-    selectLayer(id)
+    if (!isSelected) {
+      selectLayer(id)
+    }
 
     if (!containerRef.current) return
 

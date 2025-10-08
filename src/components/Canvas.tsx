@@ -4,18 +4,10 @@ import SelectableLayer from './SelectableLayer'
 
 const Canvas: React.FC = () => {
   const layers = useWorkspaceStore(state => state.layers)
-  const selectLayer = useWorkspaceStore(state => state.selectLayer)
-
-  const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      selectLayer(null)
-    }
-  }
 
   return (
     <div 
       className="bg-white w-96 h-96 shadow-lg relative"
-      onMouseDown={handleCanvasMouseDown}
     >
       {layers.map(layer => (
         <SelectableLayer

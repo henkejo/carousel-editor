@@ -18,7 +18,8 @@ const Workspace: React.FC = () => {
     setZoom,
     updatePan,
     setIsDragging,
-    setLastPanPosition
+    setLastPanPosition,
+    selectLayer
   } = useWorkspaceStore()
 
   useEffect(() => {
@@ -49,52 +50,50 @@ const Workspace: React.FC = () => {
       }
     }
 
-    const handleMouseDown = (e: MouseEvent) => {
-      if (isDragKeyPressed(e)) {
-        e.preventDefault()
-        setIsDragging(true)
-        setLastPanPosition({ x: e.clientX, y: e.clientY })
-      }
-    }
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging && isDragKeyPressed(e)) {
-        e.preventDefault()
-        const deltaX = e.clientX - lastPanPosition.x
-        const deltaY = e.clientY - lastPanPosition.y
-        updatePan(deltaX, deltaY)
-        setLastPanPosition({ x: e.clientX, y: e.clientY })
-      }
-    }
-
-    const handleMouseUp = () => {
-      setIsDragging(false)
-    }
-
     workspace.addEventListener('wheel', handleWheel, { passive: false })
-    workspace.addEventListener('mousedown', handleMouseDown)
-    workspace.addEventListener('mousemove', handleMouseMove)
-    workspace.addEventListener('mouseup', handleMouseUp)
-    workspace.addEventListener('mouseleave', handleMouseUp)
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('keyup', handleKeyUp)
 
     return () => {
       workspace.removeEventListener('wheel', handleWheel)
-      workspace.removeEventListener('mousedown', handleMouseDown)
-      workspace.removeEventListener('mousemove', handleMouseMove)
-      workspace.removeEventListener('mouseup', handleMouseUp)
-      workspace.removeEventListener('mouseleave', handleMouseUp)
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('keyup', handleKeyUp)
     }
   }, [zoom, pan, isDragging, lastPanPosition, setZoom, updatePan, setIsDragging, setLastPanPosition])
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (isDragKeyPressed(e.nativeEvent)) {
+      e.preventDefault()
+      setIsDragging(true)
+      setLastPanPosition({ x: e.clientX, y: e.clientY })
+    } else {
+      selectLayer(null)
+    }
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && isDragKeyPressed(e.nativeEvent)) {
+      e.preventDefault()
+      const deltaX = e.clientX - lastPanPosition.x
+      const deltaY = e.clientY - lastPanPosition.y
+      updatePan(deltaX, deltaY)
+      setLastPanPosition({ x: e.clientX, y: e.clientY })
+    }
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
 
   return (
     <div
       ref={workspaceRef}
       className={`w-full h-screen bg-black overflow-hidden ${isDragKeyHeld ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
       style={{ userSelect: 'none' }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
     >
       <div
         className="relative"
