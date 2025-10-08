@@ -7,7 +7,6 @@ const Canvas: React.FC = () => {
   const selectLayer = useWorkspaceStore(state => state.selectLayer)
 
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    // Only deselect if clicking directly on the canvas background
     if (e.target === e.currentTarget) {
       selectLayer(null)
     }

@@ -39,7 +39,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     selectedLayerId: null,
     
     setZoom: (zoom: number) => set((state) => {
-      state.zoom = Math.min(Math.max(0.1, zoom), 5)
+      state.zoom = Math.min(Math.max(0.1, zoom), 8)
     }),
     
     setPan: (pan: { x: number; y: number }) => set((state) => {

@@ -25,6 +25,7 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
   const selectedLayerId = useWorkspaceStore(state => state.selectedLayerId)
   const selectLayer = useWorkspaceStore(state => state.selectLayer)
   const updateLayer = useWorkspaceStore(state => state.updateLayer)
+  const zoom = useWorkspaceStore(state => state.zoom)
   const isSelected = selectedLayerId === id
 
   const handleRotate = (e: React.MouseEvent) => {
@@ -37,15 +38,12 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation()
     
-    // If any modifier key is pressed, don't handle the event
     if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
       return
     }
 
-    // Always select the layer first
     selectLayer(id)
 
-    // Only start dragging if we have a container ref
     if (!containerRef.current) return
 
     const startX = e.clientX
@@ -53,8 +51,8 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
     const startPosition = { ...position }
 
     const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - startX
-      const deltaY = e.clientY - startY
+      const deltaX = (e.clientX - startX) / zoom
+      const deltaY = (e.clientY - startY) / zoom
       updateLayer(id, {
         position: {
           x: startPosition.x + deltaX,
