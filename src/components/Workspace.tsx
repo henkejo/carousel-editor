@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { useWorkspaceStore } from '@/store/workspaceStore'
 import Canvas from './Canvas'
+import FloatingToolbar from './FloatingToolbar'
 
 const isDragKeyPressed = (e: KeyboardEvent | MouseEvent | WheelEvent) => {
   return e.ctrlKey || e.metaKey
@@ -104,6 +105,7 @@ const Workspace: React.FC = () => {
       >
         <Canvas />
       </div>
+      <FloatingToolbar />
     </div>
   )
 }
