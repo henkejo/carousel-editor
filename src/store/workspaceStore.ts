@@ -19,9 +19,11 @@ interface WorkspaceState {
   isDragging: boolean
   lastPanPosition: { x: number; y: number }
   isDragKeyHeld: boolean
+  minimisedToolbar: boolean
   layers: Layer[]
   selectedLayerId: string | null
   snapHandler: SnapHandler
+  minimiseToolbar: () => void
   setZoom: (zoom: number) => void
   setPan: (pan: { x: number; y: number }) => void
   updatePan: (deltaX: number, deltaY: number) => void
@@ -46,7 +48,12 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     layers: [] as Layer[],
     selectedLayerId: null,
     snapHandler: new SnapHandler(),
+    minimisedToolbar: false,
     
+    minimiseToolbar: () => set((state) => {
+      state.minimisedToolbar = !state.minimisedToolbar
+    }),
+
     setZoom: (zoom: number) => set((state) => {
       state.zoom = Math.min(Math.max(0.1, zoom), 8)
     }),
@@ -118,6 +125,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       state.isDragKeyHeld = false
       state.layers = [] as Layer[]
       state.selectedLayerId = null
+      state.minimisedToolbar = false
       state.snapHandler = new SnapHandler()
     })
   }))
