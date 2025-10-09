@@ -7,6 +7,7 @@ import { useWorkspaceStore } from '@/store/workspaceStore'
 const FloatingToolbar: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const addLayer = useWorkspaceStore(state => state.addLayer)
+  const addSlide = useWorkspaceStore(state => state.addSlide)
   const minimiseToolbar = useWorkspaceStore(state => state.minimiseToolbar)
   const minimisedToolbar = useWorkspaceStore(state => state.minimisedToolbar)
 
@@ -15,7 +16,7 @@ const FloatingToolbar: React.FC = () => {
   }
 
   const handleAddSlide = () => {
-    console.log('add slide')
+    addSlide()
   }
 
   const handleMinimiseToolbar = () => {
@@ -38,7 +39,8 @@ const FloatingToolbar: React.FC = () => {
         rotation: 0,
         width: 200,
         height: 200,
-        crop: { x: 0, y: 0, width: 0, height: 0 }
+        crop: { x: 0, y: 0, width: 0, height: 0 },
+        slideId: 'default-slide'
       })
     }
     reader.readAsDataURL(file)
@@ -59,7 +61,6 @@ const FloatingToolbar: React.FC = () => {
           className="hidden"
           onChange={handleFileChange}
         />
-        
         {/* Expanded Toolbar */}
         <div className={classNames(
           "bg-card backdrop-blur-sm rounded-xl px-4 py-3 shadow-lg border transition-all duration-300 ease-in-out",
@@ -101,7 +102,8 @@ const FloatingToolbar: React.FC = () => {
           </div>
         </div>
       </div>
-      {/* Minimized Toolbar - Half Circle with Chevron */}
+
+      {/* Minimized Toolbar */}
       <div className={classNames(
         "fixed bottom-0 left-1/2 transform -translate-x-1/2",
         "z-50 animate-[slideUp_0.3s_ease-out]"

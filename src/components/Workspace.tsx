@@ -15,6 +15,7 @@ const Workspace: React.FC = () => {
     isDragging,
     lastPanPosition,
     isDragKeyHeld,
+    slides,
     setZoom,
     updatePan,
     setIsDragging,
@@ -107,7 +108,15 @@ const Workspace: React.FC = () => {
           transformOrigin: '0 0'
         }}
       >
-        <Canvas />
+        {slides.map(slide => (
+          <Canvas
+            key={slide.id}
+            slideId={slide.id}
+            position={slide.position}
+            width={slide.width}
+            height={slide.height}
+          />
+        ))}
       </div>
       <FloatingToolbar />
     </div>

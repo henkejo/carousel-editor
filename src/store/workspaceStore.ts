@@ -11,6 +11,14 @@ interface Layer {
   width: number
   height: number
   crop: { x: number; y: number; width: number; height: number }
+  slideId: string
+}
+
+interface Slide {
+  id: string
+  position: { x: number; y: number }
+  width: number
+  height: number
 }
 
 interface WorkspaceState {
@@ -21,6 +29,7 @@ interface WorkspaceState {
   isDragKeyHeld: boolean
   minimisedToolbar: boolean
   layers: Layer[]
+  slides: Slide[]
   selectedLayerId: string | null
   snapHandler: SnapHandler
   minimiseToolbar: () => void
@@ -34,6 +43,7 @@ interface WorkspaceState {
   updateLayer: (id: string, updates: Partial<Layer>) => void
   deleteLayer: (id: string) => void
   selectLayer: (id: string | null) => void
+  addSlide: () => void
   snapToEdges: (layerId: string, newPosition: { x: number; y: number }, newSize?: { width: number; height: number }) => { x: number; y: number }
   reset: () => void
 }
@@ -46,6 +56,14 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     lastPanPosition: { x: 0, y: 0 },
     isDragKeyHeld: false,
     layers: [] as Layer[],
+    slides: [
+      {
+        id: 'default-slide',
+        position: { x: 0, y: 0 },
+        width: 384,
+        height: 384
+      }
+    ] as Slide[],
     selectedLayerId: null,
     snapHandler: new SnapHandler(),
     minimisedToolbar: false,
@@ -81,7 +99,8 @@ export const useWorkspaceStore = create<WorkspaceState>()(
 
     addLayer: (layer: Omit<Layer, 'id'>) => set((state) => {
       const id = crypto.randomUUID()
-      state.layers.push({ ...layer, id })
+      const slideId = state.slides.length > 0 ? state.slides[0].id : 'default-slide'
+      state.layers.push({ ...layer, id, slideId })
       state.selectedLayerId = id
     }),
 
@@ -101,6 +120,21 @@ export const useWorkspaceStore = create<WorkspaceState>()(
 
     selectLayer: (id: string | null) => set((state) => {
       state.selectedLayerId = id
+    }),
+
+    addSlide: () => set((state) => {
+      const id = crypto.randomUUID()
+      const lastSlide = state.slides[state.slides.length - 1]
+      const newPosition = {
+        x: lastSlide.position.x + lastSlide.width + 1,
+        y: lastSlide.position.y
+      }
+      state.slides.push({
+        id,
+        position: newPosition,
+        width: 384,
+        height: 384
+      })
     }),
 
     snapToEdges: (layerId: string, newPosition: { x: number; y: number }, newSize?: { width: number; height: number }): { x: number; y: number } => {
@@ -124,6 +158,14 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       state.lastPanPosition = { x: 0, y: 0 }
       state.isDragKeyHeld = false
       state.layers = [] as Layer[]
+      state.slides = [
+        {
+          id: 'default-slide',
+          position: { x: 0, y: 0 },
+          width: 384,
+          height: 384
+        }
+      ] as Slide[]
       state.selectedLayerId = null
       state.minimisedToolbar = false
       state.snapHandler = new SnapHandler()
