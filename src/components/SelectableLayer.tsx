@@ -30,14 +30,14 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
   const selectLayer = useWorkspaceStore(state => state.selectLayer)
   const updateLayer = useWorkspaceStore(state => state.updateLayer)
   const zoom = useWorkspaceStore(state => state.zoom)
+  const isDragKeyHeld = useWorkspaceStore(state => state.isDragKeyHeld)
   const isSelected = selectedLayerId === id
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    
-    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || isDragKeyHeld) {
       return
     }
+    e.stopPropagation()
 
     if (!isSelected) {
       selectLayer(id)
@@ -127,6 +127,7 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
       ref={containerRef}
       className={classNames(
         'absolute cursor-move select-none',
+        isDragKeyHeld && 'cursor-grabbing',
         isSelected && 'outline outline-2 outline-white drop-shadow-lg'
       )}
       style={{

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { useWorkspaceStore } from '@/store/workspaceStore'
 import Canvas from './Canvas'
 import FloatingToolbar from './FloatingToolbar'
@@ -9,16 +9,17 @@ const isDragKeyPressed = (e: KeyboardEvent | MouseEvent | WheelEvent) => {
 
 const Workspace: React.FC = () => {
   const workspaceRef = useRef<HTMLDivElement>(null)
-  const [isDragKeyHeld, setIsDragKeyHeld] = useState(false)
   const {
     zoom,
     pan,
     isDragging,
     lastPanPosition,
+    isDragKeyHeld,
     setZoom,
     updatePan,
     setIsDragging,
     setLastPanPosition,
+    setIsDragKeyHeld,
     selectLayer
   } = useWorkspaceStore()
 
@@ -59,7 +60,7 @@ const Workspace: React.FC = () => {
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('keyup', handleKeyUp)
     }
-  }, [zoom, pan, isDragging, lastPanPosition, setZoom, updatePan, setIsDragging, setLastPanPosition])
+  }, [zoom, pan, isDragging, lastPanPosition, setZoom, updatePan, setIsDragging, setLastPanPosition, setIsDragKeyHeld])
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isDragKeyPressed(e.nativeEvent)) {
@@ -88,7 +89,9 @@ const Workspace: React.FC = () => {
   return (
     <div
       ref={workspaceRef}
-      className={`w-full h-screen bg-black overflow-hidden ${isDragKeyHeld ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
+      className={`w-full h-screen bg-black overflow-hidden ${
+        isDragKeyHeld ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+      }`}
       style={{ userSelect: 'none' }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}

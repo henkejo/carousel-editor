@@ -17,6 +17,7 @@ interface WorkspaceState {
   pan: { x: number; y: number }
   isDragging: boolean
   lastPanPosition: { x: number; y: number }
+  isDragKeyHeld: boolean
   layers: Layer[]
   selectedLayerId: string | null
   setZoom: (zoom: number) => void
@@ -24,6 +25,7 @@ interface WorkspaceState {
   updatePan: (deltaX: number, deltaY: number) => void
   setIsDragging: (isDragging: boolean) => void
   setLastPanPosition: (position: { x: number; y: number }) => void
+  setIsDragKeyHeld: (isDragKeyHeld: boolean) => void
   addLayer: (layer: Omit<Layer, 'id'>) => void
   updateLayer: (id: string, updates: Partial<Layer>) => void
   selectLayer: (id: string | null) => void
@@ -36,6 +38,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     pan: { x: window.innerWidth / 2 - 192, y: window.innerHeight / 2 - 192 },
     isDragging: false,
     lastPanPosition: { x: 0, y: 0 },
+    isDragKeyHeld: false,
     layers: [],
     selectedLayerId: null,
     
@@ -60,6 +63,10 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       state.lastPanPosition = position
     }),
 
+    setIsDragKeyHeld: (isDragKeyHeld: boolean) => set((state) => {
+      state.isDragKeyHeld = isDragKeyHeld
+    }),
+
     addLayer: (layer: Omit<Layer, 'id'>) => set((state) => {
       const id = crypto.randomUUID()
       state.layers.push({ ...layer, id })
@@ -82,6 +89,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       state.pan = { x: window.innerWidth / 2 - 192, y: window.innerHeight / 2 - 192 }
       state.isDragging = false
       state.lastPanPosition = { x: 0, y: 0 }
+      state.isDragKeyHeld = false
       state.layers = []
       state.selectedLayerId = null
     })
