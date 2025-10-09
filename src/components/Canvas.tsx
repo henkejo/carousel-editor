@@ -16,7 +16,8 @@ const Canvas: React.FC = () => {
           url={layer.url}
           position={layer.position}
           rotation={layer.rotation}
-          scale={layer.scale}
+          width={layer.width}
+          height={layer.height}
           crop={layer.crop}
         />
       ))}

@@ -1,6 +1,7 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef } from 'react'
 import { useWorkspaceStore } from '@/store/workspaceStore'
 import classNames from 'classnames'
+import ResizeHandles from './ResizeHandles'
 
 type ResizeHandle = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 
@@ -9,7 +10,8 @@ interface SelectableLayerProps {
   url: string
   position: { x: number; y: number }
   rotation: number
-  scale: { x: number; y: number }
+  width: number
+  height: number
   crop: { x: number; y: number; width: number; height: number }
 }
 
@@ -18,7 +20,8 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
   url,
   position,
   rotation,
-  scale,
+  width,
+  height,
   crop
 }) => {
   const imageRef = useRef<HTMLImageElement>(null)
@@ -71,7 +74,9 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
 
     const startX = e.clientX / zoom
     const startY = e.clientY / zoom
-    const startScale = { ...scale }
+    const startWidth = width
+    const startHeight = height
+    const startPosition = { ...position }
 
     const isLeft = handle.includes('left')
     const isTop = handle.includes('top')
@@ -83,27 +88,28 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
       const deltaX = currentX - startX
       const deltaY = currentY - startY
 
-      const scaleFactor = 0.005
-      let scaleChange = 0
+      let newWidth = startWidth
+      let newHeight = startHeight
+      let newPosition = { ...startPosition }
 
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        scaleChange = deltaX * scaleFactor
+      if (isLeft) {
+        newWidth = Math.max(20, startWidth - deltaX)
+        newPosition.x = startPosition.x + (startWidth - newWidth)
       } else {
-        scaleChange = deltaY * scaleFactor
+        newWidth = Math.max(20, startWidth + deltaX)
       }
 
-      if (isLeft || isTop) {
-        scaleChange = -scaleChange
+      if (isTop) {
+        newHeight = Math.max(20, startHeight - deltaY)
+        newPosition.y = startPosition.y + (startHeight - newHeight)
+      } else {
+        newHeight = Math.max(20, startHeight + deltaY)
       }
-
-      const minScale = 0.1
-      const newScaleValue = Math.max(minScale, startScale.x + scaleChange)
 
       updateLayer(id, {
-        scale: {
-          x: newScaleValue,
-          y: newScaleValue
-        }
+        width: newWidth,
+        height: newHeight,
+        position: newPosition
       })
     }
 
@@ -124,8 +130,10 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
         isSelected && 'outline outline-2 outline-white drop-shadow-lg'
       )}
       style={{
-        transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale.x}, ${scale.y})`,
-        transformOrigin: 'center'
+        transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
+        transformOrigin: 'center',
+        width: `${width}px`,
+        height: `${height}px`
       }}
       onMouseDown={handleMouseDown}
     >
@@ -133,31 +141,12 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
         ref={imageRef}
         src={url}
         alt=""
-        className="pointer-events-none"
+        className="pointer-events-none w-full h-full object-cover"
         style={{
           clipPath: `inset(${crop.y}px ${crop.x}px ${crop.height}px ${crop.width}px)`
         }}
       />
-      {isSelected && (
-        <>
-          <div
-            className="absolute w-3 h-3 bg-white border-2 border-black rounded-sm cursor-nw-resize -left-1.5 -top-1.5"
-            onMouseDown={handleResize('top-left')}
-          />
-          <div
-            className="absolute w-3 h-3 bg-white border-2 border-black rounded-sm cursor-ne-resize -right-1.5 -top-1.5"
-            onMouseDown={handleResize('top-right')}
-          />
-          <div
-            className="absolute w-3 h-3 bg-white border-2 border-black rounded-sm cursor-sw-resize -left-1.5 -bottom-1.5"
-            onMouseDown={handleResize('bottom-left')}
-          />
-          <div
-            className="absolute w-3 h-3 bg-white border-2 border-black rounded-sm cursor-se-resize -right-1.5 -bottom-1.5"
-            onMouseDown={handleResize('bottom-right')}
-          />
-        </>
-      )}
+      {isSelected && <ResizeHandles onResize={handleResize} />}
     </div>
   )
 }

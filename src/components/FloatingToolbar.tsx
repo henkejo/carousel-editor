@@ -26,7 +26,8 @@ const FloatingToolbar: React.FC = () => {
         url,
         position: { x: 0, y: 0 },
         rotation: 0,
-        scale: { x: 1, y: 1 },
+        width: 200,
+        height: 200,
         crop: { x: 0, y: 0, width: 0, height: 0 }
       })
     }

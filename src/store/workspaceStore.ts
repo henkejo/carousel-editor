@@ -7,7 +7,8 @@ interface Layer {
   url: string
   position: { x: number; y: number }
   rotation: number
-  scale: { x: number; y: number }
+  width: number
+  height: number
   crop: { x: number; y: number; width: number; height: number }
 }
 
