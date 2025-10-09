@@ -11,7 +11,6 @@ interface Layer {
   width: number
   height: number
   crop: { x: number; y: number; width: number; height: number }
-  slideId: string
 }
 
 interface Slide {
@@ -99,8 +98,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
 
     addLayer: (layer: Omit<Layer, 'id'>) => set((state) => {
       const id = crypto.randomUUID()
-      const slideId = state.slides.length > 0 ? state.slides[0].id : 'default-slide'
-      state.layers.push({ ...layer, id, slideId })
+      state.layers.push({ ...layer, id })
       state.selectedLayerId = id
     }),
 

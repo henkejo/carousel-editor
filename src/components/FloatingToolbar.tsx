@@ -39,8 +39,7 @@ const FloatingToolbar: React.FC = () => {
         rotation: 0,
         width: 200,
         height: 200,
-        crop: { x: 0, y: 0, width: 0, height: 0 },
-        slideId: 'default-slide'
+        crop: { x: 0, y: 0, width: 0, height: 0 }
       })
     }
     reader.readAsDataURL(file)

@@ -1,6 +1,5 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState } from 'react'
 import { useWorkspaceStore } from '@/store/workspaceStore'
-import SelectableLayer from './SelectableLayer'
 
 interface CanvasProps {
   slideId: string
@@ -9,15 +8,9 @@ interface CanvasProps {
   height: number
 }
 
-const Canvas: React.FC<CanvasProps> = ({ slideId, position, width, height }) => {
-  const allLayers = useWorkspaceStore(state => state.layers)
+const Canvas: React.FC<CanvasProps> = ({ position, width, height }) => {
   const addLayer = useWorkspaceStore(state => state.addLayer)
   const [isDragOver, setIsDragOver] = useState(false)
-
-  const layers = useMemo(() => 
-    allLayers.filter(layer => layer.slideId === slideId),
-    [allLayers, slideId]
-  )
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -48,12 +41,11 @@ const Canvas: React.FC<CanvasProps> = ({ slideId, position, width, height }) => 
         addLayer({
           type: 'image',
           url,
-          position: { x: 0, y: 0 },
+          position: { x: position.x + 50, y: position.y + 50 },
           rotation: 0,
           width: 200,
           height: 200,
-          crop: { x: 0, y: 0, width: 0, height: 0 },
-          slideId
+          crop: { x: 0, y: 0, width: 0, height: 0 }
         })
       }
       reader.readAsDataURL(file)
@@ -76,18 +68,6 @@ const Canvas: React.FC<CanvasProps> = ({ slideId, position, width, height }) => 
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {layers.map(layer => (
-        <SelectableLayer
-          key={layer.id}
-          id={layer.id}
-          url={layer.url}
-          position={layer.position}
-          rotation={layer.rotation}
-          width={layer.width}
-          height={layer.height}
-          crop={layer.crop}
-        />
-      ))}
     </div>
   )
 }

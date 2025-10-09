@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 import { useWorkspaceStore } from '@/store/workspaceStore'
 import Canvas from './Canvas'
+import SelectableLayer from './SelectableLayer'
 import FloatingToolbar from './FloatingToolbar'
 
 const isDragKeyPressed = (e: KeyboardEvent | MouseEvent | WheelEvent) => {
@@ -16,6 +17,7 @@ const Workspace: React.FC = () => {
     lastPanPosition,
     isDragKeyHeld,
     slides,
+    layers,
     setZoom,
     updatePan,
     setIsDragging,
@@ -115,6 +117,18 @@ const Workspace: React.FC = () => {
             position={slide.position}
             width={slide.width}
             height={slide.height}
+          />
+        ))}
+        {layers.map(layer => (
+          <SelectableLayer
+            key={layer.id}
+            id={layer.id}
+            url={layer.url}
+            position={layer.position}
+            rotation={layer.rotation}
+            width={layer.width}
+            height={layer.height}
+            crop={layer.crop}
           />
         ))}
       </div>
