@@ -146,7 +146,11 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
       if (deltaAngle > 180) deltaAngle -= 360
       if (deltaAngle < -180) deltaAngle += 360
       
-      const newRotation = startRotation + deltaAngle
+      let newRotation = startRotation + deltaAngle
+
+      if (e.shiftKey) {
+        newRotation = Math.round(newRotation / 45) * 45
+      }
 
       updateLayer(id, {
         rotation: newRotation
