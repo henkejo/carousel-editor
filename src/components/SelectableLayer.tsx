@@ -2,6 +2,7 @@ import React, { useRef } from 'react'
 import { useWorkspaceStore } from '@/store/workspaceStore'
 import classNames from 'classnames'
 import ResizeHandles from './ResizeHandles'
+import RotationHandle from './RotationHandle'
 
 type ResizeHandle = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 
@@ -122,6 +123,45 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
     document.addEventListener('mouseup', handleMouseUp)
   }
 
+  const handleRotate = (e: React.MouseEvent) => {
+    e.stopPropagation()
+
+    const startX = e.clientX
+    const startY = e.clientY
+    const startRotation = rotation
+    const pan = useWorkspaceStore.getState().pan
+    const centerX = pan.x + (position.x + width / 2) * zoom
+    const centerY = pan.y + (position.y + height / 2) * zoom
+
+    const getAngle = (x: number, y: number) => {
+      return Math.atan2(y - centerY, x - centerX) * (180 / Math.PI)
+    }
+
+    const startAngle = getAngle(startX, startY)
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const currentAngle = getAngle(e.clientX, e.clientY)
+      let deltaAngle = currentAngle - startAngle
+      
+      if (deltaAngle > 180) deltaAngle -= 360
+      if (deltaAngle < -180) deltaAngle += 360
+      
+      const newRotation = startRotation + deltaAngle
+
+      updateLayer(id, {
+        rotation: newRotation
+      })
+    }
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+  }
+
   return (
     <div
       ref={containerRef}
@@ -147,7 +187,12 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
           clipPath: `inset(${crop.y}px ${crop.x}px ${crop.height}px ${crop.width}px)`
         }}
       />
-      {isSelected && <ResizeHandles onResize={handleResize} />}
+      {isSelected && (
+        <>
+          <ResizeHandles onResize={handleResize} />
+          <RotationHandle onRotate={handleRotate} />
+        </>
+      )}
     </div>
   )
 }
