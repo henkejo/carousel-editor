@@ -30,6 +30,7 @@ interface WorkspaceState {
   setIsDragKeyHeld: (isDragKeyHeld: boolean) => void
   addLayer: (layer: Omit<Layer, 'id'>) => void
   updateLayer: (id: string, updates: Partial<Layer>) => void
+  deleteLayer: (id: string) => void
   selectLayer: (id: string | null) => void
   snapToEdges: (layerId: string, newPosition: { x: number; y: number }, newSize?: { width: number; height: number }) => { x: number; y: number }
   reset: () => void
@@ -81,6 +82,13 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       const layer = state.layers.find(l => l.id === id)
       if (layer) {
         Object.assign(layer, updates)
+      }
+    }),
+
+    deleteLayer: (id: string) => set((state) => {
+      state.layers = state.layers.filter(l => l.id !== id)
+      if (state.selectedLayerId === id) {
+        state.selectedLayerId = null
       }
     }),
 

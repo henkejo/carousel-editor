@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { useWorkspaceStore } from '@/store/workspaceStore'
 import classNames from 'classnames'
 import ResizeHandles from './ResizeHandles'
@@ -30,10 +30,25 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
   const selectedLayerId = useWorkspaceStore(state => state.selectedLayerId)
   const selectLayer = useWorkspaceStore(state => state.selectLayer)
   const updateLayer = useWorkspaceStore(state => state.updateLayer)
+  const deleteLayer = useWorkspaceStore(state => state.deleteLayer)
   const snapToEdges = useWorkspaceStore(state => state.snapToEdges)
   const zoom = useWorkspaceStore(state => state.zoom)
   const isDragKeyHeld = useWorkspaceStore(state => state.isDragKeyHeld)
   const isSelected = selectedLayerId === id
+
+  useEffect(() => {
+    if (!isSelected) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        e.preventDefault()
+        deleteLayer(id)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isSelected, deleteLayer, id])
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || isDragKeyHeld) {
@@ -81,6 +96,7 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
     const startWidth = width
     const startHeight = height
     const startPosition = { ...position }
+    const aspectRatio = startWidth / startHeight
 
     const isLeft = handle.includes('left')
     const isTop = handle.includes('top')
@@ -96,18 +112,33 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
       let newHeight = startHeight
       let newPosition = { ...startPosition }
 
-      if (isLeft) {
-        newWidth = Math.max(20, startWidth - deltaX)
-        newPosition.x = startPosition.x + (startWidth - newWidth)
+      if (e.shiftKey) {
+        const delta = Math.max(Math.abs(deltaX), Math.abs(deltaY))
+        const signX = deltaX >= 0 ? 1 : -1
+        
+        newWidth = Math.max(20, startWidth + delta * signX)
+        newHeight = newWidth / aspectRatio
+        
+        if (isLeft) {
+          newPosition.x = startPosition.x + (startWidth - newWidth)
+        }
+        if (isTop) {
+          newPosition.y = startPosition.y + (startHeight - newHeight)
+        }
       } else {
-        newWidth = Math.max(20, startWidth + deltaX)
-      }
+        if (isLeft) {
+          newWidth = Math.max(20, startWidth - deltaX)
+          newPosition.x = startPosition.x + (startWidth - newWidth)
+        } else {
+          newWidth = Math.max(20, startWidth + deltaX)
+        }
 
-      if (isTop) {
-        newHeight = Math.max(20, startHeight - deltaY)
-        newPosition.y = startPosition.y + (startHeight - newHeight)
-      } else {
-        newHeight = Math.max(20, startHeight + deltaY)
+        if (isTop) {
+          newHeight = Math.max(20, startHeight - deltaY)
+          newPosition.y = startPosition.y + (startHeight - newHeight)
+        } else {
+          newHeight = Math.max(20, startHeight + deltaY)
+        }
       }
 
       const snappedPosition = snapToEdges(id, newPosition, { width: newWidth, height: newHeight })

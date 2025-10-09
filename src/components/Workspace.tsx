@@ -60,7 +60,9 @@ const Workspace: React.FC = () => {
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('keyup', handleKeyUp)
     }
-  }, [zoom, pan, isDragging, lastPanPosition, setZoom, updatePan, setIsDragging, setLastPanPosition, setIsDragKeyHeld])
+  }, [zoom, pan, isDragging, lastPanPosition, setZoom, updatePan,
+    setIsDragging, setLastPanPosition, setIsDragKeyHeld
+  ])
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isDragKeyPressed(e.nativeEvent)) {
