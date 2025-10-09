@@ -1,9 +1,20 @@
+
+
+## How to use it
+
+1. **Navigate around**: 
+   - Scroll to move the view
+   - Hold Cmd/Ctrl + scroll to zoom in/out
+   - Hold Cmd/Ctrl + drag to move the view
+
+2. **Add stuff**:
    - Click the "Add layer" button to upload an image
    - Or just drag images directly onto a slide
    - Click "Add slide" to create a new slide
 
 3. **Work with images**:
    - Click on an image to select it
+   - When an image is selected, press backspace or delete to remove it
    - Drag the corners to resize
    (Hold shift to to keep aspect ratio)
    - Drag the rotation handle to rotate
