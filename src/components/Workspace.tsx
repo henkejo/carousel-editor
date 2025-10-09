@@ -117,6 +117,7 @@ const Workspace: React.FC = () => {
             position={slide.position}
             width={slide.width}
             height={slide.height}
+            isAnimating={slide.isAnimating}
           />
         ))}
         {layers.map(layer => (

@@ -18,6 +18,7 @@ interface Slide {
   position: { x: number; y: number }
   width: number
   height: number
+  isAnimating?: boolean
 }
 
 interface WorkspaceState {
@@ -43,6 +44,7 @@ interface WorkspaceState {
   deleteLayer: (id: string) => void
   selectLayer: (id: string | null) => void
   addSlide: () => void
+  finishSlideAnimation: (slideId: string) => void
   snapToEdges: (layerId: string, newPosition: { x: number; y: number }, newSize?: { width: number; height: number }) => { x: number; y: number }
   reset: () => void
 }
@@ -131,8 +133,16 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         id,
         position: newPosition,
         width: 384,
-        height: 384
+        height: 384,
+        isAnimating: true
       })
+    }),
+
+    finishSlideAnimation: (slideId: string) => set((state) => {
+      const slide = state.slides.find(s => s.id === slideId)
+      if (slide) {
+        slide.isAnimating = false
+      }
     }),
 
     snapToEdges: (layerId: string, newPosition: { x: number; y: number }, newSize?: { width: number; height: number }): { x: number; y: number } => {

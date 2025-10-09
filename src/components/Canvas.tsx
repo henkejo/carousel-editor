@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useWorkspaceStore } from '@/store/workspaceStore'
 
 interface CanvasProps {
@@ -6,11 +6,22 @@ interface CanvasProps {
   position: { x: number; y: number }
   width: number
   height: number
+  isAnimating?: boolean
 }
 
-const Canvas: React.FC<CanvasProps> = ({ position, width, height }) => {
+const Canvas: React.FC<CanvasProps> = ({ slideId, position, width, height, isAnimating = false }) => {
   const addLayer = useWorkspaceStore(state => state.addLayer)
+  const finishSlideAnimation = useWorkspaceStore(state => state.finishSlideAnimation)
   const [isDragOver, setIsDragOver] = useState(false)
+
+  useEffect(() => {
+    if (isAnimating) {
+      const timer = setTimeout(() => {
+        finishSlideAnimation(slideId)
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [isAnimating, slideId, finishSlideAnimation])
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -54,8 +65,10 @@ const Canvas: React.FC<CanvasProps> = ({ position, width, height }) => {
 
   return (
     <div 
-      className={`bg-white shadow-lg relative transition-colors duration-200 ${
+      className={`bg-white shadow-lg relative transition-all duration-500 ease-out ${
         isDragOver ? 'bg-blue-50 border-2 border-blue-300 border-dashed' : ''
+      } ${
+        isAnimating ? 'animate-slide-in' : ''
       }`}
       style={{
         position: 'absolute',
