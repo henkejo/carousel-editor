@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
+import { SnapHandler } from '@/lib/snapHandler'
 
 interface Layer {
   id: string
@@ -20,6 +21,7 @@ interface WorkspaceState {
   isDragKeyHeld: boolean
   layers: Layer[]
   selectedLayerId: string | null
+  snapHandler: SnapHandler
   setZoom: (zoom: number) => void
   setPan: (pan: { x: number; y: number }) => void
   updatePan: (deltaX: number, deltaY: number) => void
@@ -29,6 +31,7 @@ interface WorkspaceState {
   addLayer: (layer: Omit<Layer, 'id'>) => void
   updateLayer: (id: string, updates: Partial<Layer>) => void
   selectLayer: (id: string | null) => void
+  snapToEdges: (layerId: string, newPosition: { x: number; y: number }, newSize?: { width: number; height: number }) => { x: number; y: number }
   reset: () => void
 }
 
@@ -39,8 +42,9 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     isDragging: false,
     lastPanPosition: { x: 0, y: 0 },
     isDragKeyHeld: false,
-    layers: [],
+    layers: [] as Layer[],
     selectedLayerId: null,
+    snapHandler: new SnapHandler(),
     
     setZoom: (zoom: number) => set((state) => {
       state.zoom = Math.min(Math.max(0.1, zoom), 8)
@@ -83,6 +87,20 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     selectLayer: (id: string | null) => set((state) => {
       state.selectedLayerId = id
     }),
+
+    snapToEdges: (layerId: string, newPosition: { x: number; y: number }, newSize?: { width: number; height: number }): { x: number; y: number } => {
+      const state = useWorkspaceStore.getState()
+      const currentLayer = state.layers.find((l: Layer) => l.id === layerId)
+      if (!currentLayer) return newPosition
+
+      const size = {
+        width: newSize?.width ?? currentLayer.width,
+        height: newSize?.height ?? currentLayer.height
+      }
+
+      const result = state.snapHandler.snap(layerId, newPosition, size, state.layers)
+      return result.position
+    },
     
     reset: () => set((state) => {
       state.zoom = 1
@@ -90,8 +108,9 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       state.isDragging = false
       state.lastPanPosition = { x: 0, y: 0 }
       state.isDragKeyHeld = false
-      state.layers = []
+      state.layers = [] as Layer[]
       state.selectedLayerId = null
+      state.snapHandler = new SnapHandler()
     })
   }))
 )

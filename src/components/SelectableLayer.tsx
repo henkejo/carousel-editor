@@ -30,6 +30,7 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
   const selectedLayerId = useWorkspaceStore(state => state.selectedLayerId)
   const selectLayer = useWorkspaceStore(state => state.selectLayer)
   const updateLayer = useWorkspaceStore(state => state.updateLayer)
+  const snapToEdges = useWorkspaceStore(state => state.snapToEdges)
   const zoom = useWorkspaceStore(state => state.zoom)
   const isDragKeyHeld = useWorkspaceStore(state => state.isDragKeyHeld)
   const isSelected = selectedLayerId === id
@@ -53,11 +54,13 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = (e.clientX - startX) / zoom
       const deltaY = (e.clientY - startY) / zoom
+      const newPosition = {
+        x: startPosition.x + deltaX,
+        y: startPosition.y + deltaY
+      }
+      const snappedPosition = snapToEdges(id, newPosition)
       updateLayer(id, {
-        position: {
-          x: startPosition.x + deltaX,
-          y: startPosition.y + deltaY
-        }
+        position: snappedPosition
       })
     }
 
@@ -107,10 +110,11 @@ const SelectableLayer: React.FC<SelectableLayerProps> = ({
         newHeight = Math.max(20, startHeight + deltaY)
       }
 
+      const snappedPosition = snapToEdges(id, newPosition, { width: newWidth, height: newHeight })
       updateLayer(id, {
         width: newWidth,
         height: newHeight,
-        position: newPosition
+        position: snappedPosition
       })
     }
 
