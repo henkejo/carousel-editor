@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-import { CirclePlus, CopyPlus, X, ChevronUp } from 'lucide-react'
+import { CirclePlus, CopyPlus, X, ChevronUp, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import classNames from 'classnames'
 import { useWorkspaceStore } from '@/store/workspaceStore'
@@ -10,6 +10,7 @@ const FloatingToolbar: React.FC = () => {
   const addSlide = useWorkspaceStore(state => state.addSlide)
   const minimiseToolbar = useWorkspaceStore(state => state.minimiseToolbar)
   const minimisedToolbar = useWorkspaceStore(state => state.minimisedToolbar)
+  const exportSlides = useWorkspaceStore(state => state.exportSlides)
 
   const handleAddLayer = () => {
     fileInputRef.current?.click()
@@ -21,6 +22,10 @@ const FloatingToolbar: React.FC = () => {
 
   const handleMinimiseToolbar = () => {
     minimiseToolbar()
+  }
+
+  const handleExportSlides = async () => {
+    await exportSlides()
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,6 +92,17 @@ const FloatingToolbar: React.FC = () => {
             >
               <CopyPlus className='!w-8 !h-8'/>
               <span className="text-xs font-medium">Add slide</span>
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleExportSlides}
+              className={classNames(
+                "flex flex-col justify-center p-2 text-white transition-all",
+                "hover:bg-gray-700/50 hover:text-white h-auto"
+              )}
+            >
+              <Download className='!w-8 !h-8'/>
+              <span className="text-xs font-medium">Export</span>
             </Button>
             <Button
               variant="ghost"

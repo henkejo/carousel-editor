@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { SnapHandler } from '@/lib/snapHandler'
+import { exportAllSlidesAsPNG } from '@/lib/exportSlides'
 
 interface Layer {
   id: string
@@ -48,6 +49,7 @@ interface WorkspaceState {
   finishSlideAnimation: (slideId: string) => void
   snapToEdges: (layerId: string, newPosition: { x: number; y: number }, newSize?: { width: number; height: number }) => { x: number; y: number }
   reset: () => void
+  exportSlides: () => Promise<void>
 }
 
 export const useWorkspaceStore = create<WorkspaceState>()(
@@ -192,6 +194,11 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       state.selectedLayerId = null
       state.minimisedToolbar = false
       state.snapHandler = new SnapHandler()
-    })
+    }),
+
+    exportSlides: async () => {
+      const state = useWorkspaceStore.getState()
+      await exportAllSlidesAsPNG(state.slides, state.layers)
+    }
   }))
 )
