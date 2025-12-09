@@ -1,7 +1,9 @@
+# carousel-editor
+Built as an experiment to try out zustand and a Vite + ShadCN + Express stack.
+
 
 
 ## [https://carousel-editor.netlify.app/](https://carousel-editor.netlify.app/)
-
 
 
 https://github.com/user-attachments/assets/0209bf2e-b6c2-45e3-8fda-efe5809e89be
